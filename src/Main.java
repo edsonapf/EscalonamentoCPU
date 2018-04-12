@@ -9,6 +9,7 @@ public class Main {
     public static void main(String[] args){
         
         ArrayList<Processo> processos = new ArrayList<Processo>();
+        ArrayList<Processo> processosAux = new ArrayList<Processo>();//lista de processos auxiliar apenas para ordenar por ordem de ciclo de cpu
         Processo proc;
         Algoritmos executaAlgoritmos;
         ComparaChegada compChegada = new ComparaChegada();
@@ -41,10 +42,17 @@ public class Main {
         }
         
         Collections.sort(processos, compChegada);
-        //Collections.sort(processos, compCpu);
+        processosAux = processos;
         
-        executaAlgoritmos = new Algoritmos(processos);
-        executaAlgoritmos.algoritmoFCFS();
+        executaAlgoritmos = new Algoritmos();
+        executaAlgoritmos.algoritmoFCFS(processos);
+        
+        Collections.sort(processosAux, compCpu);
+        executaAlgoritmos.algoritmoSJF(processosAux);
+        
+        executaAlgoritmos.algoritmoRR(processos);
+        
+        
 
         
     }

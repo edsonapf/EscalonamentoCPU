@@ -2,18 +2,12 @@
 import java.util.ArrayList;
 
 public class Algoritmos {
-    
-    private ArrayList<Processo> proc;
-    
-    public Algoritmos(ArrayList<Processo> proc){
-        this.proc = proc;
-    }
-    
+       
     /**
      * O algoritmo FCFS escalona sempre de acordo com a ordem de chegada
      * Funciona como uma fila FIFO
      */
-    public void algoritmoFCFS(){
+    public void algoritmoFCFS(ArrayList<Processo> proc){
         double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
         
         /**
@@ -62,6 +56,22 @@ public class Algoritmos {
         
         System.out.printf("FCFS %.1f %.1f %.1f\n", mediaRetorno, mediaResposta, mediaEspera);
         
+        
+    }
+    
+    /**
+     * O algoritmo SJF escalona os processos vizualizando quem é o menor que está na fila de prontos
+     */
+    
+    public void algoritmoSJF(ArrayList<Processo> proc){
+        
+    }
+    
+    /**
+     * O algoritmo RR escalona os processos por ondem de chegada na fila de prontos
+     * e deixa executar o processo por um certo tempo(quantum)
+     */
+    public void algoritmoRR(ArrayList<Processo> proc){
         
     }
      

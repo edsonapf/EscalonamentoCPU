@@ -14,6 +14,7 @@ public class Processo {
         this.tempoResposta = 0;
     }
     
+    
     public void setChegada(int chegada){
         this.chegada = chegada;
     }
