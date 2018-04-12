@@ -14,7 +14,6 @@ public class Algoritmos {
      * Funciona como uma fila FIFO
      */
     public void algoritmoFCFS(){
-        int tempoEspera = 0; 
         double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
         
         /**
