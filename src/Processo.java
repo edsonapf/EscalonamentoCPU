@@ -14,6 +14,12 @@ public class Processo {
         this.tempoResposta = 0;
     }
     
+
+    public void zeraTempos(){
+        this.tempoEspera = 0;
+        this.tempoExecucao = 0;
+        this.tempoResposta = 0;
+    }
     
     public void setChegada(int chegada){
         this.chegada = chegada;
