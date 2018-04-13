@@ -13,7 +13,7 @@ public class Main {
         Processo proc;
         Algoritmos executaAlgoritmos;
         ComparaChegada compChegada = new ComparaChegada();
-        ComparaCpu compCpu = new ComparaCpu();
+        ComparaChegadaCpu compCpu = new ComparaChegadaCpu();
         
         /**
          * Trecho de código onde será lido o arquivo contendo o tempo de entrada e tempo de cpu dos processos
@@ -46,7 +46,7 @@ public class Main {
         
         executaAlgoritmos = new Algoritmos();
         executaAlgoritmos.algoritmoFCFS(processos);
-                
+
         Collections.sort(processosAux, compCpu);
         executaAlgoritmos.algoritmoSJF(processosAux);
        
