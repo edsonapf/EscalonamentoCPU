@@ -9,11 +9,10 @@ public class Main {
     public static void main(String[] args){
         
         ArrayList<Processo> processos = new ArrayList<Processo>();
-        ArrayList<Processo> processosAux = null;//lista de processos auxiliar apenas para ordenar por ordem de ciclo de cpu
         Processo proc;
         Algoritmos executaAlgoritmos;
         ComparaChegada compChegada = new ComparaChegada();
-        ComparaChegadaCpu compCpu = new ComparaChegadaCpu();
+        ComparaChegadaCpu compChegadaCpu = new ComparaChegadaCpu();
         
         /**
          * Trecho de código onde será lido o arquivo contendo o tempo de entrada e tempo de cpu dos processos
@@ -42,15 +41,13 @@ public class Main {
         }
         
         Collections.sort(processos, compChegada);
-        processosAux = processos;
         
-        executaAlgoritmos = new Algoritmos();
-        executaAlgoritmos.algoritmoFCFS(processos);
+        executaAlgoritmos = new Algoritmos(processos);
+        executaAlgoritmos.algoritmoFCFS();
 
-        Collections.sort(processosAux, compCpu);
-        executaAlgoritmos.algoritmoSJF(processosAux);
+        executaAlgoritmos.algoritmoSJF();
        
-        executaAlgoritmos.algoritmoRR(processos);
+        executaAlgoritmos.algoritmoRR();
         
         
 

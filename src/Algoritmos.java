@@ -3,12 +3,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Algoritmos {
+    
+    ArrayList<Processo> proc = new ArrayList<Processo>();
+    
+    public Algoritmos(ArrayList<Processo> proc){
+        this.proc = proc;
+    }
        
     /**
      * O algoritmo FCFS escalona sempre de acordo com a ordem de chegada
      * Funciona como uma fila FIFO
      */
-    public void algoritmoFCFS(ArrayList<Processo> proc){
+    public void algoritmoFCFS(){
         double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
         
         /**
@@ -68,16 +74,21 @@ public class Algoritmos {
      * O algoritmo SJF escalona os processos vizualizando quem é o menor que está na fila de prontos
      */
     
-    public void algoritmoSJF(ArrayList<Processo> proc){
+    public void algoritmoSJF(){
         
         ComparaCpu compCpu = new ComparaCpu();
-        ArrayList<Processo> filaEsperando = proc;
+        ComparaChegadaCpu compChegadaCpu = new ComparaChegadaCpu();
+        ArrayList<Processo> filaEsperando = (ArrayList<Processo>) proc.clone();
         ArrayList<Processo> filaPronto = new ArrayList<Processo>();
         ArrayList<Processo> filaFinalizado = new ArrayList<Processo>();
         Processo processoExecutando = null;
+        Collections.sort(filaEsperando, compChegadaCpu);
         
         double mediaEspera = 0, mediaResposta = 0, mediaRetorno = 0;
         int tempoTotal = 0, ciclo;
+        
+        int executou = 0;//para saber quantas vezes o processo que está sendo executado foi executado
+        boolean entrouUm = false;
         
         //Tempo total salvará o tempo necessário para executar todos os processos
         for(Processo p : proc)
@@ -87,7 +98,7 @@ public class Algoritmos {
          * Processo de escalonamento dos processos para calcular
          * seus tempos de espera, retorno e resposta
          */
-        for(ciclo=0; ciclo <= tempoTotal; ciclo++){
+        for(ciclo=0; ciclo <= tempoTotal+proc.get(0).getChegada(); ciclo++){
             
             //Laço que verifica qual processo chegou no sistema
             for(int j = 0; j < filaEsperando.size(); j++){
@@ -97,6 +108,7 @@ public class Algoritmos {
                 
                 if(filaEsperando.get(j).getChegada() <= ciclo){
                     //System.out.println("Entrou");
+                    entrouUm = true;
                     filaPronto.add(filaEsperando.get(j));
                     filaEsperando.remove(j);
                     
@@ -105,71 +117,59 @@ public class Algoritmos {
             }
             
             Collections.sort(filaPronto, compCpu);
-            //System.out.println(filaPronto.get(0).getChegada());
-            /*if(!filaPronto.isEmpty()){
-                
-                if(processoExecutando == null){
-                    processoExecutando = filaPronto.get(0);
-                    filaPronto.remove(0);
-                    processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
-                    processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
-                }
-                
-            }*/
             
             
             //Verifica se existe algum processo executando
-            if(processoExecutando == null){
-                
-                processoExecutando = filaPronto.get(0);
-                //System.out.println(ciclo+"\t"+(ciclo - processoExecutando.getChegada()));
-                processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
-                processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
-                filaPronto.remove(0);
-                
-            }else{
-                
-                //System.out.println(processoExecutando.getChegada()+"  "+processoExecutando.getCicloCpu()+"  "+processoExecutando.getTempoEspera());
-                //verifica se o processo que estava executando foi concluido
-                if(processoExecutando.getCicloCpu() == (ciclo - processoExecutando.getTempoEspera())){
-                    
-                    System.out.println(processoExecutando.getCicloCpu());
-                    
-                    filaFinalizado.add(processoExecutando);
-                    if(!filaPronto.isEmpty()){
-                        processoExecutando = filaPronto.get(0);
-                        //System.out.println(ciclo+"\t"+(ciclo - processoExecutando.getChegada()));
-                        processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
-                        processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
-                        filaPronto.remove(0);
-                    }
-                    
+            if(entrouUm){
+                if(processoExecutando == null){
+
+                    processoExecutando = filaPronto.get(0);
+                    //System.out.println(ciclo+"\t"+(ciclo - processoExecutando.getChegada()));
+                    processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
+                    processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
+                    filaPronto.remove(0);
+
+                }else{
+                    executou++;
+                    //verifica se o processo que estava executando foi concluido
+                    if(executou == processoExecutando.getCicloCpu()){
+                        executou = 0;
+
+                        filaFinalizado.add(processoExecutando);
+                        if(!filaPronto.isEmpty()){
+                            processoExecutando = filaPronto.get(0);
+                            processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
+                            processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
+                            filaPronto.remove(0);
+                        }
+                    } 
+
+
                 }
-                
             }
-            
                    
         }//fim do for ciclo
         
-        /*System.out.println(proc.get(0).getChegada());
+        //System.out.println(filaFinalizado.get(filaFinalizado.size()-1).getChegada()+"\t"+filaFinalizado.get(filaFinalizado.size()-1).getCicloCpu());
+        
         //Cálculo do Tempo de Espera
         for(int i=0; i<filaFinalizado.size(); i++){
             
-            mediaEspera += filaFinalizado.get(i).getTempoEspera() + proc.get(0).getChegada();
+            mediaEspera += filaFinalizado.get(i).getTempoEspera();
             
         }
         
         //Cálculo do Tempo de Resposta
         for(int i=0; i<filaFinalizado.size(); i++){
             
-            mediaResposta += filaFinalizado.get(i).getTempoResposta()+ proc.get(0).getChegada();
+            mediaResposta += filaFinalizado.get(i).getTempoResposta();
             
         }
         
         //Cálculo do Tempo de Retorno
         for(int i=0; i<filaFinalizado.size(); i++){
             
-            mediaRetorno += filaFinalizado.get(i).getTempoResposta()+ proc.get(0).getChegada() +filaFinalizado.get(i).getCicloCpu();
+            mediaRetorno += filaFinalizado.get(i).getTempoResposta() + filaFinalizado.get(i).getCicloCpu();
             
         }
         
@@ -177,7 +177,7 @@ public class Algoritmos {
         mediaResposta = mediaResposta / proc.size();
         mediaRetorno = mediaRetorno / proc.size();
         
-        System.out.printf("SJF %.1f %.1f %.1f\n", mediaRetorno, mediaResposta, mediaEspera);*/
+        System.out.printf("SJF %.1f %.1f %.1f\n", mediaRetorno, mediaResposta, mediaEspera);
         
     }//fim algoritmo sjf
     
@@ -185,7 +185,7 @@ public class Algoritmos {
      * O algoritmo RR escalona os processos por ondem de chegada na fila de prontos
      * e deixa executar o processo por um certo tempo(quantum)
      */
-    public void algoritmoRR(ArrayList<Processo> proc){
+    public void algoritmoRR(){
         
     }
      
