@@ -17,7 +17,8 @@ public class Processo {
     /**
      * Método que reinicializa os tempo de resposta para saber se ele já foi executado alguma vez
      */
-    public void resetaTempoResposta(){
+    public void resetaTempos(){
+        this.tempoEspera = 0;
         this.tempoResposta = -1;
     }
     

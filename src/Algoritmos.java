@@ -69,8 +69,7 @@ public class Algoritmos {
         mediaEspera = mediaEspera/processo.size();
         
         System.out.printf("FCFS %.1f %.1f %.1f\n", mediaRetorno, mediaResposta, mediaEspera);
-        
-        
+                
     }
     
     /**
@@ -171,7 +170,7 @@ public class Algoritmos {
         
         System.out.printf("SJF %.1f %.1f %.1f\n", mediaRetorno, mediaResposta, mediaEspera);
         
-    }//fim algoritmo sjf
+    }
     
     /**
      * O algoritmo RR escalona os processos por ondem de chegada na fila de prontos
@@ -185,9 +184,9 @@ public class Algoritmos {
         ArrayList<Processo> filaPronto = new ArrayList<Processo>();
         ArrayList<Processo> filaFinalizado = new ArrayList<Processo>();
         Processo processoExecutando = null;
-        
-        //for(Processo p : filaEsperando)
-        //    System.out.println(p.getChegada()+" "+p.getCicloCpu());
+              
+        for(Processo p : filaEsperando)
+            p.resetaTempos();
         
         double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
         
@@ -307,8 +306,7 @@ public class Algoritmos {
         mediaEspera = mediaEspera / proc.size();
         
         System.out.printf("RR %.1f %.1f %.1f\n", mediaRetorno, mediaResposta, mediaEspera);
-        
-        
-    }//fim algoritmo rr
+                
+    }
      
 }
