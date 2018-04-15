@@ -11,14 +11,14 @@ public class Processo {
         this.cicloCpu = cicloCpu;
         this.tempoEspera = 0;
         this.tempoExecucao = 0;
-        this.tempoResposta = 0;
+        this.tempoResposta = -1;
     }
     
-
-    public void zeraTempos(){
-        this.tempoEspera = 0;
-        this.tempoExecucao = 0;
-        this.tempoResposta = 0;
+    /**
+     * Método que reinicializa os tempo de resposta para saber se ele já foi executado alguma vez
+     */
+    public void resetaTempoResposta(){
+        this.tempoResposta = -1;
     }
     
     public void setChegada(int chegada){
