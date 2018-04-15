@@ -15,6 +15,8 @@ public class Algoritmos {
      * Funciona como uma fila FIFO
      */
     public void algoritmoFCFS(){
+        
+        ArrayList<Processo> processo = (ArrayList<Processo>) proc.clone();
         double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
         
         /**
@@ -28,10 +30,11 @@ public class Algoritmos {
          * Somando com o Tempo de Chegada do primeiro processo, garante que só contará a partir do início do primeiro processo
          * 
          */
-        for(int i = 1; i < proc.size(); i++){
+        processo.get(0).setChegada(0);//O primeiro processo sempre vai entrar assim que chegar, então seu tempo de espera é 0
+        for(int i = 1; i < processo.size(); i++){
             
-            proc.get(i).setTempoEspera(proc.get(i-1).getTempoEspera() + proc.get(i-1).getCicloCpu());
-            mediaEspera += proc.get(i).getTempoEspera() - proc.get(i).getChegada() + proc.get(0).getChegada();
+            processo.get(i).setTempoEspera(processo.get(i-1).getTempoEspera() + processo.get(i-1).getCicloCpu());
+            mediaEspera += processo.get(i).getTempoEspera() - processo.get(i).getChegada() + processo.get(0).getChegada();
             
         }
         
@@ -43,9 +46,9 @@ public class Algoritmos {
          * Somando com o Tempo de Chegada do primeiro processo, garante que só contará a partir do início do primeiro processo
          * 
          */
-        for(int i = 0; i < proc.size(); i++){
+        for(int i = 0; i < processo.size(); i++){
             
-            mediaRetorno += proc.get(i).getTempoEspera() +proc.get(i).getCicloCpu() - proc.get(i).getChegada() + proc.get(0).getChegada();
+            mediaRetorno += processo.get(i).getTempoEspera() +processo.get(i).getCicloCpu() - processo.get(i).getChegada() + processo.get(0).getChegada();
             
         }
         
@@ -55,15 +58,15 @@ public class Algoritmos {
          * Já que no Algoritmo FCFS o algoritmo executa por completo quando responde pela primeira vez
          * então a maneira de calcular o Tempo de Resposta vai ser igual ao cálculo do Tempo de Espera
          */
-        for(int i = 0; i < proc.size(); i++){
+        for(int i = 0; i < processo.size(); i++){
             
-            mediaResposta += proc.get(i).getTempoEspera() - proc.get(i).getChegada() + proc.get(0).getChegada();
+            mediaResposta += processo.get(i).getTempoEspera() - processo.get(i).getChegada() + processo.get(0).getChegada();
             
         }
         
-        mediaRetorno = mediaRetorno/proc.size();
-        mediaResposta = mediaResposta/proc.size();
-        mediaEspera = mediaEspera/proc.size();
+        mediaRetorno = mediaRetorno/processo.size();
+        mediaResposta = mediaResposta/processo.size();
+        mediaEspera = mediaEspera/processo.size();
         
         System.out.printf("FCFS %.1f %.1f %.1f\n", mediaRetorno, mediaResposta, mediaEspera);
         
@@ -187,6 +190,63 @@ public class Algoritmos {
      */
     public void algoritmoRR(){
         
-    }
+        boolean entrouUm = false;
+        int quantum = 0, tempoTotal = 0;
+        ArrayList<Processo> filaEsperando =(ArrayList<Processo>) proc.clone();
+        ArrayList<Processo> filaPronto = new ArrayList<Processo>();
+        ArrayList<Processo> filaFinalizado = new ArrayList<Processo>();
+        Processo processoExecutando = null;
+        
+        double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
+        
+        for(Processo p : proc)
+            tempoTotal += p.getCicloCpu();
+        
+        for(int ciclo = 0; ciclo <= tempoTotal + proc.get(0).getChegada(); ciclo++){
+            
+            for(int i = 0; i < filaEsperando.size(); i++){
+                
+                if(filaEsperando.get(i).getChegada() > ciclo)
+                    break;
+                
+                if(filaEsperando.get(i).getChegada() <= ciclo){
+                    
+                    entrouUm = true;
+                    filaPronto.add(filaEsperando.get(i));
+                    filaEsperando.remove(i);
+                    
+                }
+                
+            }
+            
+            if(entrouUm){
+                
+                if(processoExecutando == null){
+                    
+                    processoExecutando = filaPronto.get(0);
+                    
+                    //Condição para saber se já entrou alguma vez para executar
+                    if(processoExecutando.getTempoResposta() < 0){
+                        
+                        processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
+                        processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
+                        
+                    }
+                    
+                    filaPronto.remove(0);
+                    
+                }else{
+                    
+                    
+                    
+                }
+                
+            }
+            
+        }
+        
+        
+        
+    }//fim algoritmo rr
      
 }
