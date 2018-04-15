@@ -104,19 +104,10 @@ public class Algoritmos {
         for(ciclo=0; ciclo <= tempoTotal+proc.get(0).getChegada(); ciclo++){
             
             //Laço que verifica qual processo chegou no sistema
-            for(int j = 0; j < filaEsperando.size(); j++){
-                
-                if(filaEsperando.get(j).getChegada() > ciclo)
-                    break;
-                
-                if(filaEsperando.get(j).getChegada() <= ciclo){
-                    //System.out.println("Entrou");
-                    entrouUm = true;
-                    filaPronto.add(filaEsperando.get(j));
-                    filaEsperando.remove(j);
-                    
-                }
-                
+            while((!filaEsperando.isEmpty()) && (filaEsperando.get(0).getChegada() <= ciclo)){
+                entrouUm= true;
+                filaPronto.add(filaEsperando.get(0));
+                filaEsperando.remove(0);
             }
             
             Collections.sort(filaPronto, compCpu);
@@ -152,8 +143,6 @@ public class Algoritmos {
             }
                    
         }//fim do for ciclo
-        
-        //System.out.println(filaFinalizado.get(filaFinalizado.size()-1).getChegada()+"\t"+filaFinalizado.get(filaFinalizado.size()-1).getCicloCpu());
         
         //Cálculo do Tempo de Espera
         for(int i=0; i<filaFinalizado.size(); i++){
@@ -197,6 +186,9 @@ public class Algoritmos {
         ArrayList<Processo> filaFinalizado = new ArrayList<Processo>();
         Processo processoExecutando = null;
         
+        //for(Processo p : filaEsperando)
+        //    System.out.println(p.getChegada()+" "+p.getCicloCpu());
+        
         double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
         
         for(Processo p : proc)
@@ -204,19 +196,10 @@ public class Algoritmos {
         
         for(int ciclo = 0; ciclo <= tempoTotal + proc.get(0).getChegada(); ciclo++){
             
-            for(int i = 0; i < filaEsperando.size(); i++){
-                
-                if(filaEsperando.get(i).getChegada() > ciclo)
-                    break;
-                
-                if(filaEsperando.get(i).getChegada() <= ciclo){
-                    
-                    entrouUm = true;
-                    filaPronto.add(filaEsperando.get(i));
-                    filaEsperando.remove(i);
-                    
-                }
-                
+            while((!filaEsperando.isEmpty()) && (filaEsperando.get(0).getChegada() <= ciclo)){
+                entrouUm= true;
+                filaPronto.add(filaEsperando.get(0));
+                filaEsperando.remove(0);
             }
             
             if(entrouUm){
@@ -237,14 +220,93 @@ public class Algoritmos {
                     
                 }else{
                     
+                    if(quantum == 2){
+                        
+                        //caso o processo ainda não tenha terminado
+                        if(processoExecutando.getTempoExecucao() != processoExecutando.getCicloCpu()){
+                            
+                            filaPronto.add(processoExecutando);//coloca o processo que estava executando de novo na fila de prontos
+                            
+                        }else{
+                            
+                            filaFinalizado.add(processoExecutando);//caso o processo tenha terminado de executar
+                            
+                        }
+                        
+                        if(!filaPronto.isEmpty()){
+                            
+                            processoExecutando = filaPronto.get(0);
+
+                            if(processoExecutando.getTempoResposta() < 0){
+
+                                processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
+                                processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
+
+                            }
+
+                            filaPronto.remove(0);    
+                            
+                        }
+                        
+                        quantum = 0;
+                        
+                    }
                     
+                    else if(processoExecutando.getTempoExecucao() == processoExecutando.getCicloCpu()){
+                        
+                        filaFinalizado.add(processoExecutando);
+                        
+                        if(!filaPronto.isEmpty()){
+                            
+                            processoExecutando = filaPronto.get(0);
+                            
+                            if(processoExecutando.getTempoResposta() < 0){
+
+                                processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
+                                processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
+
+                            }
+
+                            filaPronto.remove(0);
+                            
+                        }
+                        
+                        quantum = 0;
+                        
+                    }
                     
                 }
+                
+                if(ciclo != tempoTotal + proc.get(0).getChegada())
+                    processoExecutando.setTempoExecucao(processoExecutando.getTempoExecucao()+1);//incrementa o tempo de execução
+                
+                
+                quantum++;//incrementa sempre que tiver um processo executando
+                
+            }
+            
+            //Incrementa o Tempo de Espera caso esteja na fila de pronto
+            for(int i=0; i<filaPronto.size(); i++){
+                
+                filaPronto.get(i).setTempoEspera(filaPronto.get(i).getTempoEspera()+1);
                 
             }
             
         }
         
+        for(Processo p : filaFinalizado){
+            
+            mediaResposta += p.getTempoResposta();
+            mediaEspera += p.getTempoEspera();
+            mediaRetorno += p.getTempoEspera() + p.getCicloCpu();
+            
+        }
+        
+        mediaRetorno = mediaRetorno / proc.size();
+        mediaResposta = mediaResposta / proc.size();
+        mediaEspera = mediaEspera / proc.size();
+        
+        System.out.printf("RR %.1f %.1f %.1f\n", mediaRetorno, mediaResposta, mediaEspera);
         
         
     }//fim algoritmo rr

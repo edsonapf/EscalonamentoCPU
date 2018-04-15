@@ -44,10 +44,12 @@ public class Main {
         
         executaAlgoritmos = new Algoritmos(processos);
         executaAlgoritmos.algoritmoFCFS();
-
+        
+        executaAlgoritmos.algoritmoRR();
+        
         executaAlgoritmos.algoritmoSJF();
        
-        executaAlgoritmos.algoritmoRR();
+        
         
         
 
