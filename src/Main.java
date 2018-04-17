@@ -42,13 +42,22 @@ public class Main {
         
         Collections.sort(processos, compChegada);
         
-        executaAlgoritmos = new Algoritmos(processos);
-        executaAlgoritmos.algoritmoFCFS();
+        //for(Processo p: processos)
+        //    System.out.println(p.getChegada()+" "+p.getCicloCpu());
         
+        executaAlgoritmos = new Algoritmos(processos);
+        executaAlgoritmos.algoritmoFCFS2();
+        
+        //for(Processo p: processos)
+        //    System.out.println(p.getChegada()+" "+p.getCicloCpu());
         
         
         executaAlgoritmos.algoritmoSJF();
-       
+        
+        //for(Processo p: processos)
+        //    System.out.println(p.getChegada()+" "+p.getCicloCpu());
+
+        
         executaAlgoritmos.algoritmoRR();
         
         

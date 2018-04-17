@@ -30,7 +30,7 @@ public class Algoritmos {
          * Somando com o Tempo de Chegada do primeiro processo, garante que só contará a partir do início do primeiro processo
          * 
          */
-        processo.get(0).setChegada(0);//O primeiro processo sempre vai entrar assim que chegar, então seu tempo de espera é 0
+        processo.get(0).setTempoEspera(0);//O primeiro processo sempre vai entrar assim que chegar, então seu tempo de espera é 0
         for(int i = 1; i < processo.size(); i++){
             
             processo.get(i).setTempoEspera(processo.get(i-1).getTempoEspera() + processo.get(i-1).getCicloCpu());
@@ -72,6 +72,89 @@ public class Algoritmos {
                 
     }
     
+    public void algoritmoFCFS2(){
+        
+        boolean entrouUm = false;
+        ArrayList<Processo> filaEsperando =(ArrayList<Processo>) proc.clone();
+        ArrayList<Processo> filaPronto = new ArrayList<Processo>();
+        ArrayList<Processo> filaFinalizado = new ArrayList<Processo>();
+        Processo processoExecutando = null;
+        double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
+        
+        for(int ciclo=0; filaFinalizado.size() < proc.size(); ciclo++){
+            
+            while((!filaEsperando.isEmpty()) && (filaEsperando.get(0).getChegada() <= ciclo)){
+                entrouUm= true;
+                filaPronto.add(filaEsperando.get(0));
+                filaEsperando.remove(0);
+            }
+            
+            if(entrouUm){
+                
+                if(processoExecutando == null){
+                    
+                    if(!filaPronto.isEmpty()){
+                        
+                        processoExecutando = filaPronto.get(0);
+                        processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
+                        processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
+                        filaPronto.remove(0);
+                        
+                    }
+                                        
+                }else{
+                    
+                    if(processoExecutando.getTempoExecucao() == processoExecutando.getCicloCpu()){
+
+                        filaFinalizado.add(processoExecutando);
+                        if(!filaPronto.isEmpty()){
+                            processoExecutando = filaPronto.get(0);
+                            processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
+                            processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
+                            filaPronto.remove(0);                        
+                        }else{
+                            processoExecutando = null;
+                        }
+                    }
+                    
+                    
+                }
+                
+                if(processoExecutando != null)
+                    processoExecutando.setTempoExecucao(processoExecutando.getTempoExecucao()+1);
+                
+            }
+            
+        }
+        //Cálculo do Tempo de Espera
+        for(int i=0; i<filaFinalizado.size(); i++){
+            
+            mediaEspera += filaFinalizado.get(i).getTempoEspera();
+            
+        }
+        
+        //Cálculo do Tempo de Resposta
+        for(int i=0; i<filaFinalizado.size(); i++){
+            
+            mediaResposta += filaFinalizado.get(i).getTempoResposta();
+            
+        }
+        
+        //Cálculo do Tempo de Retorno
+        for(int i=0; i<filaFinalizado.size(); i++){
+            
+            mediaRetorno += filaFinalizado.get(i).getTempoResposta() + filaFinalizado.get(i).getCicloCpu();
+            
+        }
+        
+        mediaEspera = mediaEspera / proc.size();
+        mediaResposta = mediaResposta / proc.size();
+        mediaRetorno = mediaRetorno / proc.size();
+        
+        System.out.printf("FCFS %.1f %.1f %.1f\n", mediaRetorno, mediaResposta, mediaEspera);
+        
+    }
+    
     /**
      * O algoritmo SJF escalona os processos vizualizando quem é o menor que está na fila de prontos
      */
@@ -85,6 +168,9 @@ public class Algoritmos {
         ArrayList<Processo> filaFinalizado = new ArrayList<Processo>();
         Processo processoExecutando = null;
         Collections.sort(filaEsperando, compChegadaCpu);
+        
+        for(Processo p : filaEsperando)
+            p.resetaTempos();
         
         double mediaEspera = 0, mediaResposta = 0, mediaRetorno = 0;
         int tempoTotal = 0, ciclo;
@@ -100,7 +186,7 @@ public class Algoritmos {
          * Processo de escalonamento dos processos para calcular
          * seus tempos de espera, retorno e resposta
          */
-        for(ciclo=0; ciclo <= tempoTotal+proc.get(0).getChegada(); ciclo++){
+        for(ciclo=0; filaFinalizado.size() < proc.size(); ciclo++){
             
             //Laço que verifica qual processo chegou no sistema
             while((!filaEsperando.isEmpty()) && (filaEsperando.get(0).getChegada() <= ciclo)){
@@ -114,13 +200,18 @@ public class Algoritmos {
             
             //Verifica se existe algum processo executando
             if(entrouUm){
+                
                 if(processoExecutando == null){
-
-                    processoExecutando = filaPronto.get(0);
-                    //System.out.println(ciclo+"\t"+(ciclo - processoExecutando.getChegada()));
-                    processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
-                    processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
-                    filaPronto.remove(0);
+                    
+                    if(!filaPronto.isEmpty()){
+                        
+                        processoExecutando = filaPronto.get(0);
+                        processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
+                        processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
+                        filaPronto.remove(0);
+                        
+                    }
+                    
 
                 }else{
                     executou++;
@@ -134,6 +225,10 @@ public class Algoritmos {
                             processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
                             processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
                             filaPronto.remove(0);
+                        }else{
+                            
+                            processoExecutando = null;
+                            
                         }
                     } 
 
@@ -184,16 +279,15 @@ public class Algoritmos {
         ArrayList<Processo> filaPronto = new ArrayList<Processo>();
         ArrayList<Processo> filaFinalizado = new ArrayList<Processo>();
         Processo processoExecutando = null;
-              
-        for(Processo p : filaEsperando)
-            p.resetaTempos();
-        
         double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
+                     
+        for(Processo p : filaEsperando)
+            p.resetaTempos(); 
         
         for(Processo p : proc)
             tempoTotal += p.getCicloCpu();
         
-        for(int ciclo = 0; ciclo <= tempoTotal + proc.get(0).getChegada(); ciclo++){
+        for(int ciclo = 0; filaFinalizado.size() < proc.size(); ciclo++){
             
             while((!filaEsperando.isEmpty()) && (filaEsperando.get(0).getChegada() <= ciclo)){
                 entrouUm= true;
@@ -203,19 +297,25 @@ public class Algoritmos {
             
             if(entrouUm){
                 
+                //Primeiro processo a executar
                 if(processoExecutando == null){
                     
-                    processoExecutando = filaPronto.get(0);
-                    
-                    //Condição para saber se já entrou alguma vez para executar
-                    if(processoExecutando.getTempoResposta() < 0){
+                    if(!filaPronto.isEmpty()){
                         
-                        processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
-                        processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
+                        processoExecutando = filaPronto.get(0);
+
+                        //Condição para saber se já entrou alguma vez para executar
+                        if(processoExecutando.getTempoResposta() < 0){
+
+                            processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
+                            processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
+
+                        }
+
+                        filaPronto.remove(0);
                         
                     }
-                    
-                    filaPronto.remove(0);
+                        
                     
                 }else{
                     
@@ -245,6 +345,10 @@ public class Algoritmos {
 
                             filaPronto.remove(0);    
                             
+                        }else{
+                            
+                            processoExecutando = null;
+                            
                         }
                         
                         quantum = 0;
@@ -268,6 +372,10 @@ public class Algoritmos {
 
                             filaPronto.remove(0);
                             
+                        }else{
+                            
+                            processoExecutando = null;
+                            
                         }
                         
                         quantum = 0;
@@ -276,7 +384,7 @@ public class Algoritmos {
                     
                 }
                 
-                if(ciclo != tempoTotal + proc.get(0).getChegada())
+                if(processoExecutando != null)
                     processoExecutando.setTempoExecucao(processoExecutando.getTempoExecucao()+1);//incrementa o tempo de execução
                 
                 
@@ -290,6 +398,7 @@ public class Algoritmos {
                 filaPronto.get(i).setTempoEspera(filaPronto.get(i).getTempoEspera()+1);
                 
             }
+            
             
         }
         
