@@ -1,5 +1,12 @@
+/**
+ * Aluno: Edson Alves Pereira Filho
+ * Matrícula: 11512960
+ */
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,29 +47,17 @@ public class Main {
             e.printStackTrace();
         }
         
+        // Ordena os processos por tempo de chegada
         Collections.sort(processos, compChegada);
-        
-        //for(Processo p: processos)
-        //    System.out.println(p.getChegada()+" "+p.getCicloCpu());
-        
+              
         executaAlgoritmos = new Algoritmos(processos);
-        executaAlgoritmos.algoritmoFCFS2();
         
-        //for(Processo p: processos)
-        //    System.out.println(p.getChegada()+" "+p.getCicloCpu());
-        
+        executaAlgoritmos.algoritmoFCFS();
         
         executaAlgoritmos.algoritmoSJF();
         
-        //for(Processo p: processos)
-        //    System.out.println(p.getChegada()+" "+p.getCicloCpu());
-
-        
         executaAlgoritmos.algoritmoRR();
-        
-        
-
-        
+     
     }
     
 }

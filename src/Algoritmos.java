@@ -1,3 +1,7 @@
+/**
+ * Aluno: Edson Alves Pereira Filho
+ * Matrícula: 11512960
+ */
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,83 +18,45 @@ public class Algoritmos {
      * O algoritmo FCFS escalona sempre de acordo com a ordem de chegada
      * Funciona como uma fila FIFO
      */
+    
     public void algoritmoFCFS(){
         
-        ArrayList<Processo> processo = (ArrayList<Processo>) proc.clone();
-        double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
-        
-        /**
-         * Tempo de Espera é o tempo que o processo ficou esperando na fila de prontos
-         * 
-         * Cálculo do Tempo de Espera sem contar com o Tempo de Chegada:
-         * Tempo de Espera = Somatório(Tempo de Espera Anterior + Tempo de Ciclo de CPU do processo anterior)
-         * 
-         * Cálculo do Tempo de Espera contando o Tempo de Chegada:
-         * Tempo de Espera = Somatório(Tempo de Espera total sem o Tempo de Chegada - Tempo de Chegada do processo atual + Tempo de Chegada do primeiro processo)
-         * Somando com o Tempo de Chegada do primeiro processo, garante que só contará a partir do início do primeiro processo
-         * 
-         */
-        processo.get(0).setTempoEspera(0);//O primeiro processo sempre vai entrar assim que chegar, então seu tempo de espera é 0
-        for(int i = 1; i < processo.size(); i++){
-            
-            processo.get(i).setTempoEspera(processo.get(i-1).getTempoEspera() + processo.get(i-1).getCicloCpu());
-            mediaEspera += processo.get(i).getTempoEspera() - processo.get(i).getChegada() + processo.get(0).getChegada();
-            
-        }
-        
-        /**
-         * Tempo de Retorno é o tempo que o processo levou para terminar sua execução
-         * 
-         * Cálculo do Tempo de Retorno:
-         * TR = Somatório(Tempo de Espera + Tempo de Ciclos de CPU - Tempo de Chegada do processo atual + Tempo do Chegada do primeiro processo)
-         * Somando com o Tempo de Chegada do primeiro processo, garante que só contará a partir do início do primeiro processo
-         * 
-         */
-        for(int i = 0; i < processo.size(); i++){
-            
-            mediaRetorno += processo.get(i).getTempoEspera() +processo.get(i).getCicloCpu() - processo.get(i).getChegada() + processo.get(0).getChegada();
-            
-        }
-        
-        /**
-         * Tempo de Resposta é o tempo que o processo demorou para ser executado pela primera vez
-         * 
-         * Já que no Algoritmo FCFS o algoritmo executa por completo quando responde pela primeira vez
-         * então a maneira de calcular o Tempo de Resposta vai ser igual ao cálculo do Tempo de Espera
-         */
-        for(int i = 0; i < processo.size(); i++){
-            
-            mediaResposta += processo.get(i).getTempoEspera() - processo.get(i).getChegada() + processo.get(0).getChegada();
-            
-        }
-        
-        mediaRetorno = mediaRetorno/processo.size();
-        mediaResposta = mediaResposta/processo.size();
-        mediaEspera = mediaEspera/processo.size();
-        
-        System.out.printf("FCFS %.1f %.1f %.1f\n", mediaRetorno, mediaResposta, mediaEspera);
-                
-    }
-    
-    public void algoritmoFCFS2(){
-        
-        boolean entrouUm = false;
         ArrayList<Processo> filaEsperando =(ArrayList<Processo>) proc.clone();
         ArrayList<Processo> filaPronto = new ArrayList<Processo>();
         ArrayList<Processo> filaFinalizado = new ArrayList<Processo>();
         Processo processoExecutando = null;
+        boolean entrouUm = false;
         double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
         
+        
+        /**
+         * Loop onde será executado o escalonamento ciclo por ciclo
+         * até que todos os processos tenham sido executados.
+         */
         for(int ciclo=0; filaFinalizado.size() < proc.size(); ciclo++){
             
+            /**
+             * Fica nesse loop enquanto tiver algum processo na fila de processos
+             * e esses processos têm tempo de chegada menor ou igual do quê o ciclo atual.
+             */
             while((!filaEsperando.isEmpty()) && (filaEsperando.get(0).getChegada() <= ciclo)){
+                /**
+                 * Quando encontra um processo, adiciona ele na fila de prontos
+                 * e remove da fila de processos que estavam esperando sua hora
+                 * de chegar no sistema.
+                 */
                 entrouUm= true;
                 filaPronto.add(filaEsperando.get(0));
                 filaEsperando.remove(0);
+                
             }
             
             if(entrouUm){
                 
+                /**
+                 * Quando chegar o primeiro processo ou a cpu tiver ficado ociosa por algum tempo,
+                 * entrará no if e executará o processo. Sempre verificando se tem algum processo na fila de prontos. 
+                 */
                 if(processoExecutando == null){
                     
                     if(!filaPronto.isEmpty()){
@@ -104,46 +70,47 @@ public class Algoritmos {
                                         
                 }else{
                     
+                    // Verifica se o processo já terminou sua execução.
                     if(processoExecutando.getTempoExecucao() == processoExecutando.getCicloCpu()){
-
+                        
+                        // O processo que terminou a execução é adicionado na fila de finalizado.
                         filaFinalizado.add(processoExecutando);
+                        
+                        // Se tiver algum processo na fila de prontos, ele é colocado para execução.
+                        // Setando o tempo de resposta e espera do processo que está sendo executado.
                         if(!filaPronto.isEmpty()){
+                            
                             processoExecutando = filaPronto.get(0);
                             processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
                             processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
-                            filaPronto.remove(0);                        
+                            filaPronto.remove(0);   
+                            
                         }else{
+                            
+                            // A variável fica nula, pois o processador pode ficar ociosa,
+                            // caso não tenha executado todos os processos.
                             processoExecutando = null;
+                            
                         }
                     }
                     
                     
                 }
                 
+                // Incrementa o tempo de execução para saber se foi executado todo
                 if(processoExecutando != null)
                     processoExecutando.setTempoExecucao(processoExecutando.getTempoExecucao()+1);
                 
             }
             
         }
-        //Cálculo do Tempo de Espera
-        for(int i=0; i<filaFinalizado.size(); i++){
-            
-            mediaEspera += filaFinalizado.get(i).getTempoEspera();
-            
-        }
         
-        //Cálculo do Tempo de Resposta
-        for(int i=0; i<filaFinalizado.size(); i++){
+        // Faz a soma de todos os tempos de cada processo finalizado
+        for(Processo p : filaFinalizado){
             
-            mediaResposta += filaFinalizado.get(i).getTempoResposta();
-            
-        }
-        
-        //Cálculo do Tempo de Retorno
-        for(int i=0; i<filaFinalizado.size(); i++){
-            
-            mediaRetorno += filaFinalizado.get(i).getTempoResposta() + filaFinalizado.get(i).getCicloCpu();
+            mediaEspera += p.getTempoEspera();
+            mediaResposta += p.getTempoResposta();
+            mediaRetorno += p.getTempoResposta() + p.getCicloCpu();
             
         }
         
@@ -161,46 +128,58 @@ public class Algoritmos {
     
     public void algoritmoSJF(){
         
-        ComparaCpu compCpu = new ComparaCpu();
-        ComparaChegadaCpu compChegadaCpu = new ComparaChegadaCpu();
         ArrayList<Processo> filaEsperando = (ArrayList<Processo>) proc.clone();
         ArrayList<Processo> filaPronto = new ArrayList<Processo>();
         ArrayList<Processo> filaFinalizado = new ArrayList<Processo>();
         Processo processoExecutando = null;
+        double mediaEspera = 0, mediaResposta = 0, mediaRetorno = 0;
+        boolean entrouUm = false;
+        
+        ComparaCpu compCpu = new ComparaCpu();
+        ComparaChegadaCpu compChegadaCpu = new ComparaChegadaCpu();
+        
+        // Ordena com critério de chegada e ciclo de cpu de cada processo
         Collections.sort(filaEsperando, compChegadaCpu);
         
+        // Reseta os tempos de espera, retorno e respostas dos processos
         for(Processo p : filaEsperando)
             p.resetaTempos();
         
-        double mediaEspera = 0, mediaResposta = 0, mediaRetorno = 0;
-        int tempoTotal = 0, ciclo;
-        
-        int executou = 0;//para saber quantas vezes o processo que está sendo executado foi executado
-        boolean entrouUm = false;
-        
-        //Tempo total salvará o tempo necessário para executar todos os processos
-        for(Processo p : proc)
-            tempoTotal += p.getCicloCpu();
-        
         /**
-         * Processo de escalonamento dos processos para calcular
-         * seus tempos de espera, retorno e resposta
+         * Loop onde será executado o escalonamento ciclo por ciclo
+         * até que todos os processos tenham sido executados.
          */
-        for(ciclo=0; filaFinalizado.size() < proc.size(); ciclo++){
+        for(int ciclo=0; filaFinalizado.size() < proc.size(); ciclo++){
             
-            //Laço que verifica qual processo chegou no sistema
+            /**
+             * Fica nesse loop enquanto tiver algum processo na fila de processos
+             * e esses processos têm tempo de chegada menor ou igual do quê o ciclo atual.
+             */    
             while((!filaEsperando.isEmpty()) && (filaEsperando.get(0).getChegada() <= ciclo)){
+                
+                /**
+                 * Quando encontra um processo, adiciona ele na fila de prontos
+                 * e remove da fila de processos que estavam esperando sua hora
+                 * de chegar no sistema.
+                 */               
                 entrouUm= true;
                 filaPronto.add(filaEsperando.get(0));
                 filaEsperando.remove(0);
+                
             }
             
+            /**
+             * Ordena sempre a fila de pronto para que o processo
+             * com menor tempo de cpu execute primeiro
+             */
             Collections.sort(filaPronto, compCpu);
             
-            
-            //Verifica se existe algum processo executando
             if(entrouUm){
                 
+                /**
+                 * Quando chegar o primeiro processo ou a cpu tiver ficado ociosa por algum tempo,
+                 * entrará no if e executará o processo. Sempre verificando se tem algum processo na fila de prontos. 
+                 */               
                 if(processoExecutando == null){
                     
                     if(!filaPronto.isEmpty()){
@@ -214,19 +193,26 @@ public class Algoritmos {
                     
 
                 }else{
-                    executou++;
-                    //verifica se o processo que estava executando foi concluido
-                    if(executou == processoExecutando.getCicloCpu()){
-                        executou = 0;
 
+                    // Verifica se o processo já terminou sua execução.
+                    if(processoExecutando.getTempoExecucao() == processoExecutando.getCicloCpu()){
+
+                        // O processo que terminou a execução é adicionado na fila de finalizado.
                         filaFinalizado.add(processoExecutando);
+                        
+                        // Se tiver algum processo na fila de prontos, ele é colocado para execução.
+                        // Setando o tempo de resposta e espera do processo que está sendo executado.
                         if(!filaPronto.isEmpty()){
+                            
                             processoExecutando = filaPronto.get(0);
                             processoExecutando.setTempoEspera(ciclo - processoExecutando.getChegada());
                             processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
                             filaPronto.remove(0);
+                            
                         }else{
                             
+                            // A variável fica nula, pois o processador pode ficar ociosa,
+                            // caso não tenha executado todos os processos.
                             processoExecutando = null;
                             
                         }
@@ -234,28 +220,21 @@ public class Algoritmos {
 
 
                 }
+                
+                // Incrementa o tempo de execução para saber se foi executado todo
+                if(processoExecutando != null)
+                    processoExecutando.setTempoExecucao(processoExecutando.getTempoExecucao()+1);
+                
             }
                    
-        }//fim do for ciclo
-        
-        //Cálculo do Tempo de Espera
-        for(int i=0; i<filaFinalizado.size(); i++){
-            
-            mediaEspera += filaFinalizado.get(i).getTempoEspera();
-            
         }
         
-        //Cálculo do Tempo de Resposta
-        for(int i=0; i<filaFinalizado.size(); i++){
+        // Faz a soma de todos os tempos de cada processo finalizado
+        for(Processo p : filaFinalizado){
             
-            mediaResposta += filaFinalizado.get(i).getTempoResposta();
-            
-        }
-        
-        //Cálculo do Tempo de Retorno
-        for(int i=0; i<filaFinalizado.size(); i++){
-            
-            mediaRetorno += filaFinalizado.get(i).getTempoResposta() + filaFinalizado.get(i).getCicloCpu();
+            mediaEspera += p.getTempoEspera();
+            mediaResposta += p.getTempoResposta();
+            mediaRetorno += p.getTempoResposta() + p.getCicloCpu();
             
         }
         
@@ -272,39 +251,56 @@ public class Algoritmos {
      * e deixa executar o processo por um certo tempo(quantum)
      */
     public void algoritmoRR(){
-        
-        boolean entrouUm = false;
-        int quantum = 0, tempoTotal = 0;
+                
         ArrayList<Processo> filaEsperando =(ArrayList<Processo>) proc.clone();
         ArrayList<Processo> filaPronto = new ArrayList<Processo>();
         ArrayList<Processo> filaFinalizado = new ArrayList<Processo>();
         Processo processoExecutando = null;
         double mediaEspera = 0, mediaRetorno = 0, mediaResposta = 0;
-                     
+        boolean entrouUm = false;
+        int quantum = 0;
+        
+        // Ordena com critério de chegada e ciclo de cpu de cada processo
         for(Processo p : filaEsperando)
             p.resetaTempos(); 
         
-        for(Processo p : proc)
-            tempoTotal += p.getCicloCpu();
-        
+        /**
+         * Loop onde será executado o escalonamento ciclo por ciclo
+         * até que todos os processos tenham sido executados.
+         */
         for(int ciclo = 0; filaFinalizado.size() < proc.size(); ciclo++){
             
+            /**
+             * Fica nesse loop enquanto tiver algum processo na fila de processos
+             * e esses processos têm tempo de chegada menor ou igual do quê o ciclo atual.
+             */ 
             while((!filaEsperando.isEmpty()) && (filaEsperando.get(0).getChegada() <= ciclo)){
+                
+                /**
+                 * Quando encontra um processo, adiciona ele na fila de prontos
+                 * e remove da fila de processos que estavam esperando sua hora
+                 * de chegar no sistema.
+                 */  
                 entrouUm= true;
                 filaPronto.add(filaEsperando.get(0));
                 filaEsperando.remove(0);
+                
             }
             
             if(entrouUm){
                 
-                //Primeiro processo a executar
+                /**
+                 * Quando chegar o primeiro processo ou a cpu tiver ficado ociosa por algum tempo,
+                 * entrará no if e executará o processo. Sempre verificando se tem algum processo na fila de prontos. 
+                 */ 
                 if(processoExecutando == null){
                     
                     if(!filaPronto.isEmpty()){
                         
                         processoExecutando = filaPronto.get(0);
 
-                        //Condição para saber se já entrou alguma vez para executar
+                        // Condição para saber se é a primeira vez que o processo está executando.
+                        // Caso for verdadeira, seta os tempo inicial de espera e o tempo de resposta.
                         if(processoExecutando.getTempoResposta() < 0){
 
                             processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
@@ -319,23 +315,29 @@ public class Algoritmos {
                     
                 }else{
                     
+                    // Verifica se foi passado 2 quantum's.
                     if(quantum == 2){
                         
-                        //caso o processo ainda não tenha terminado
+                        // Caso o processo ainda não tenha terminado, coloca-o de volta na fila de prontos.
                         if(processoExecutando.getTempoExecucao() != processoExecutando.getCicloCpu()){
                             
-                            filaPronto.add(processoExecutando);//coloca o processo que estava executando de novo na fila de prontos
+                            filaPronto.add(processoExecutando);
                             
                         }else{
                             
-                            filaFinalizado.add(processoExecutando);//caso o processo tenha terminado de executar
+                            // Caso o processo tenha terminado de executar, coloca-o na fila de finalizados.
+                            filaFinalizado.add(processoExecutando);
                             
                         }
                         
+                        // Se tiver algum processo na fila de prontos, ele é colocado para execução.
+                        // Setando o tempo de resposta e espera do processo que está sendo executado.
                         if(!filaPronto.isEmpty()){
                             
                             processoExecutando = filaPronto.get(0);
-
+                            
+                            // Condição para saber se é a primeira vez que o processo está executando.
+                            // Caso for verdadeira, seta os tempo inicial de espera e o tempo de resposta.
                             if(processoExecutando.getTempoResposta() < 0){
 
                                 processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
@@ -347,22 +349,31 @@ public class Algoritmos {
                             
                         }else{
                             
+                            // A variável fica nula, pois o processador pode ficar ociosa,
+                            // caso não tenha executado todos os processos.
                             processoExecutando = null;
                             
                         }
                         
+                        //reseta o valor do quantum.
                         quantum = 0;
                         
                     }
                     
+                    // Verifica se o processo já terminou sua execução.
                     else if(processoExecutando.getTempoExecucao() == processoExecutando.getCicloCpu()){
                         
+                        // O processo que terminou a execução é adicionado na fila de finalizado.
                         filaFinalizado.add(processoExecutando);
                         
+                        // Se tiver algum processo na fila de prontos, ele é colocado para execução.
+                        // Setando o tempo de resposta e espera do processo que está sendo executado.
                         if(!filaPronto.isEmpty()){
                             
                             processoExecutando = filaPronto.get(0);
                             
+                            // Condição para saber se é a primeira vez que o processo está executando.
+                            // Caso for verdadeira, seta os tempo inicial de espera e o tempo de resposta.
                             if(processoExecutando.getTempoResposta() < 0){
 
                                 processoExecutando.setTempoResposta(ciclo - processoExecutando.getChegada());
@@ -374,25 +385,29 @@ public class Algoritmos {
                             
                         }else{
                             
+                            // A variável fica nula, pois o processador pode ficar ociosa,
+                            // caso não tenha executado todos os processos.
                             processoExecutando = null;
                             
                         }
                         
+                        //reseta o valor do quantum.
                         quantum = 0;
                         
                     }
                     
                 }
                 
+                // Incrementa o tempo de execução para saber se foi executado todo
                 if(processoExecutando != null)
                     processoExecutando.setTempoExecucao(processoExecutando.getTempoExecucao()+1);//incrementa o tempo de execução
                 
-                
-                quantum++;//incrementa sempre que tiver um processo executando
+                //incrementa sempre que tiver um processo executando
+                quantum++;
                 
             }
             
-            //Incrementa o Tempo de Espera caso esteja na fila de pronto
+            //Incrementa o tempo de espera de todos os processos que estão na fila de pronto
             for(int i=0; i<filaPronto.size(); i++){
                 
                 filaPronto.get(i).setTempoEspera(filaPronto.get(i).getTempoEspera()+1);
